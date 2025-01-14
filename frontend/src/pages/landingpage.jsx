@@ -1,8 +1,13 @@
-import React from 'react'
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Upload, X, ChevronRight, ChevronLeft, FileSpreadsheet, Download, HelpCircle } from "lucide-react";
 
-export default function landingpage() {
+const FileUploadInterface = () => {
   return (
-    <div>landingpage</div>
+  <>
+  </>
   )
-}
+};
 
+export default FileUploadInterface;
