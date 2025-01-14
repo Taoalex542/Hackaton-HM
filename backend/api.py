@@ -1,68 +1,71 @@
-import json
-from reader import reader
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)
 
-datas = reader()
-
+datas = []
 nextdataId = 1
-@app.route('/data', methods=['GET'])
-def get_datas():
- return jsonify(datas)
-
-@app.route('/data/<int:id>', methods=['GET'])
-def get_data_by_id(id: int):
- data = get_data(id)
- if data is None:
-   return jsonify({ 'error': 'data does not exist'}), 404
- return jsonify(data)
-
-def get_data(id):
- return next((e for e in datas if e['id'] == id), None)
-
-def data_is_valid(data):
-    for key in data.keys():
-        if key != 'name':
-            return False
-    return True
 
 @app.route('/data', methods=['POST'])
 def create_data():
- global nextdataId
- data = json.loads(request.data)
- if not data_is_valid(data):
-   return jsonify({ 'error': 'Invalid data properties.' }), 400
+    try:
+        print("Files in request:", request.files)
+        print("Form data:", request.form)
+        
+        if 'file1' not in request.files or 'file2' not in request.files:
+            return jsonify({
+                'error': 'Missing files',
+                'received': list(request.files.keys())
+            }), 400
 
- data['id'] = nextdataId
- nextdataId += 1
- datas.append(data)
+        file1 = request.files['file1']
+        file2 = request.files['file2']
 
- return '', 201, { 'location': f'/datas/{data["id"]}' }
+        file_info = {
+            'file1': {
+                'filename': file1.filename,
+                'content_type': file1.content_type,
+                'size': len(file1.read())
+            },
+            'file2': {
+                'filename': file2.filename,
+                'content_type': file2.content_type,
+                'size': len(file2.read())
+            }
+        }
+        file1.seek(0)
+        file2.seek(0)
 
-@app.route('/data/<int:id>', methods=['PUT'])
-def update_data(id: int):
- data = get_data(id)
- if data is None:
-   return jsonify({ 'error': 'data does not exist.' }), 404
+        global nextdataId
+        data = {
+            'id': nextdataId,
+            'files': file_info
+        }
+        nextdataId += 1
+        datas.append(data)
+        return jsonify({
+            'message': 'Files received successfully',
+            'data': data
+        })
 
- updated_data = json.loads(request.data)
- if not data_is_valid(updated_data):
-   return jsonify({ 'error': 'Invalid data properties.' }), 400
+    except Exception as e:
+        print("Error:", str(e))
+        return jsonify({
+            'error': str(e),
+            'type': 'server_error'
+        }), 500
 
- data.update(updated_data)
+@app.route('/data', methods=['GET'])
+def get_datas():
+    return jsonify(datas)
 
- return jsonify(data)
-
-@app.route('/data/<int:id>', methods=['DELETE'])
-def delete_data(id: int):
- global datas
- data = get_data(id)
- if data is None:
-   return jsonify({ 'error': 'data does not exist.' }), 404
-
- datas = [e for e in datas if e['id'] != id]
- return jsonify(data), 200
+@app.route('/data/<int:id>', methods=['GET'])
+def get_data_by_id(id: int):
+    data = next((e for e in datas if e['id'] == id), None)
+    if data is None:
+        return jsonify({'error': 'data does not exist'}), 404
+    return jsonify(data)
 
 if __name__ == '__main__':
-   app.run(port=5000)
-
+    app.run(host='0.0.0.0', port=5000, debug=True)
