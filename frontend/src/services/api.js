@@ -1,4 +1,4 @@
-const API_URL = 'your-api-endpoint';
+const API_URL = 'http://localhost:5000';
 
 export const apiTable = {
   async compareDocuments(file1, file2) {
@@ -7,7 +7,7 @@ export const apiTable = {
       formData.append('file1', file1);
       formData.append('file2', file2);
 
-      const response = await fetch(`${API_URL}/compare`, {
+      const response = await fetch(`${API_URL}/data`, {
         method: 'POST',
         body: formData,
       });
