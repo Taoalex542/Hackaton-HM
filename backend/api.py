@@ -1,16 +1,11 @@
 import json
+from reader import reader
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 
-datas = [
- { 'id': 1, 'name': 'Ashley' },
- { 'id': 2, 'name': 'Kate' },
- { 'id': 3, 'name': 'Joe' }
-]
+datas = reader()
 
-
-nextdataId = 4
-3
+nextdataId = 1
 @app.route('/data', methods=['GET'])
 def get_datas():
  return jsonify(datas)
