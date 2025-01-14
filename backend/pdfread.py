@@ -30,11 +30,12 @@ def extract_text_to_file(pdf_path):
                 categories.append(items)
         azerty = 0
         while (azerty < len(categories)):
+            if (num_there(categories[azerty]) or categories[azerty].startswith("(")):
+                categories.remove(categories[azerty])
+                continue
             if (categories[azerty].endswith("DE") or categories[azerty].endswith("ET")):
                 categories[azerty] += " " + categories[azerty + 1]
                 categories.remove(categories[azerty + 1])
-            if (categories[azerty].startswith("(")) or num_there(categories[azerty]):
-                categories.remove(categories[azerty])
             
             azerty -=-1
         for items in categories:
