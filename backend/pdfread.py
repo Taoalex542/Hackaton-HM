@@ -2,6 +2,9 @@
 import os
 from pypdf import PdfReader
 
+def num_there(s):
+    return any(i.isdigit() for i in s)
+
 def extract_text_to_file(pdf_path):
     if not os.path.exists(pdf_path):
         print(f"Erreur : Le fichier PDF '{pdf_path}' n'existe pas.")
@@ -21,19 +24,21 @@ def extract_text_to_file(pdf_path):
             test += page.extract_text()
         wawa = test.split("\n")
         total_pages = len(reader.pages) - 1
-        qsdfghjk = []
+        categories = []
         for items in wawa :
-            if not items.startswith("(") and not items.startswith(" ("):
-                wawa.remove(items)
             if items.isupper() and ("/" + str(total_pages)) not in items and "TABLEAU" not in items:
-                qsdfghjk.append(items)
+                categories.append(items)
         azerty = 0
-        while (azerty < len(qsdfghjk)):
-            if qsdfghjk[azerty].endswith("DE") or qsdfghjk[azerty].endswith("ET"):
-                qsdfghjk[azerty] += " " + qsdfghjk[azerty + 1]
-                qsdfghjk.remove(qsdfghjk[azerty + 1])
-            print(qsdfghjk[azerty])
+        while (azerty < len(categories)):
+            if (categories[azerty].endswith("DE") or categories[azerty].endswith("ET")):
+                categories[azerty] += " " + categories[azerty + 1]
+                categories.remove(categories[azerty + 1])
+            if (categories[azerty].startswith("(")) or num_there(categories[azerty]):
+                categories.remove(categories[azerty])
+            
             azerty -=-1
+        for items in categories:
+            print (items)
                 
                 
 
