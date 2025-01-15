@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import os
 from pypdf import PdfReader
+import re
+
 
 def num_there(s):
     return any(i.isdigit() for i in s)
@@ -36,13 +38,42 @@ def extract_text_to_file(pdf_path):
             if (categories[azerty].endswith("DE") or categories[azerty].endswith("ET")):
                 categories[azerty] += " " + categories[azerty + 1]
                 categories.remove(categories[azerty + 1])
-            
-            azerty -=-1
-        for items in categories:
-            print (items)
-                
-                
 
+            azerty -=-1
+            data = []
+            temp_list = []
+            current_category = None
+            item_id = 0
+
+            for items in wawa:
+                if not items.startswith('(') and '*' not in items:
+                    found_new_category = False
+                    for truc in categories:
+                        if items in truc:
+                            if current_category is not None:
+                                for temp_item in temp_list:
+                                    data.append([item_id, current_category, temp_item])
+                                    item_id += 1
+                            temp_list = []
+                            current_category = items
+                            found_new_category = True
+                            break
+
+                    if not found_new_category and current_category is not None:
+                        if not items.startswith('(') and '*' not in items and ('%' in items or '/' in items) and ("/" + str(total_pages)) not in items and any(char.isdigit() for char in items):
+                            items = items[::-1]
+                            for i in range(len(items) ):
+                                if (items[i].isdigit() and items[i + 1] == ' ') :
+                                    items = items[:i + 1]
+                                    items = items[::-1]
+                                    temp_list.append(items)
+                                    break
+
+            if current_category is not None:
+                for temp_item in temp_list:
+                    data.append([item_id, current_category, temp_item])
+                    item_id += 1
+        print(data)
     except Exception as e:
         print(f"Erreur lors du traitement du fichier PDF : {e}")
 
